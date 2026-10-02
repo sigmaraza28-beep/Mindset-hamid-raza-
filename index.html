@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mindset Challenge</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10182f,#243b6b);color:#fff;min-height:100vh;display:flex;justify-content:center}
+.game{width:min(520px,100%);padding:18px;text-align:center}.top{display:flex;justify-content:space-between;gap:8px}
+.badge{background:#ffffff18;border:1px solid #ffffff30;border-radius:14px;padding:9px 12px;font-size:14px}
+h1{font-size:30px;margin:22px 0 6px}.sub{opacity:.8;margin-bottom:18px}
+.question{background:#fff;color:#17213b;border-radius:20px;padding:20px;margin:12px 0 18px;box-shadow:0 10px 30px #0005}
+.question b{font-size:22px}.blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.block{min-height:105px;border:0;border-radius:18px;padding:15px;font-size:17px;font-weight:bold;color:#fff;background:#334b82;box-shadow:0 7px 0 #18284e;cursor:pointer;transition:.12s}
+.block:active{transform:translateY(5px);box-shadow:0 2px 0 #18284e}
+.block.correct{background:#16a36b;box-shadow:0 7px 0 #087047}.block.wrong{background:#d94b59;box-shadow:0 7px 0 #8e2632}
+#msg{min-height:30px;font-weight:bold;margin:18px}.bar{height:10px;background:#ffffff22;border-radius:10px;overflow:hidden}.fill{height:100%;width:0;background:#55e6a5;transition:.3s}
+button#restart{display:none;border:0;border-radius:14px;padding:12px 22px;font-weight:bold;font-size:16px;background:#fff;color:#17213b}
+.small{font-size:13px;opacity:.7;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="game">
+  <div class="top">
+    <div class="badge">✅ सही: <span id="right">0</span>/3</div>
+    <div class="badge">❌ गलत: <span id="wrong">0</span>/3</div>
+  </div>
+  <h1>🧠 Mindset Challenge</h1>
+  <div class="sub">सही और गलत सोच को पहचानो</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="question"><b id="question">तैयार हो?</b></div>
+  <div class="blocks" id="blocks"></div>
+  <div id="msg">नीचे दिए गए blocks में सही जवाब चुनो।</div>
+  <button id="restart" onclick="start()">फिर से खेलें</button>
+  <div class="small">लक्ष्य: 3 सही जवाब और 3 गलत जवाब वाले blocks पहचानना।</div>
+</div>
+
+<script>
+const rounds=[
+ {q:"मुश्किल काम सामने आए तो सबसे अच्छा mindset क्या है?", a:["मैं कोशिश करके सीखूँगा","मैं तुरंत छोड़ दूँगा"], good:0},
+ {q:"गलती होने पर growth mindset क्या कहता है?", a:["गलती से सीखो","गलती मतलब मैं बेकार हूँ"], good:0},
+ {q:"कोई काम पहली बार में न हो तो?", a:["दूसरा तरीका आज़माओ","कभी मत करो"], good:0},
+ {q:"तुम्हारा दोस्त सफल हुआ। healthy mindset?", a:["उससे सीखो और उसे बधाई दो","उसकी सफलता से जलो"], good:0},
+ {q:"लक्ष्य पाने के लिए क्या जरूरी है?", a:["छोटे कदम और consistency","बिना कोशिश के इंतजार"], good:0},
+ {q:"कोई तुम्हारी आलोचना करे तो?", a:["काम की बात लो और सुधारो","हर बात पर गुस्सा करो"], good:0}
+];
+
+let round,right,wrong,locked;
+const qEl=document.getElementById("question"), blocks=document.getElementById("blocks");
+function start(){
+ round=0;right=0;wrong=0;locked=false;
+ document.getElementById("restart").style.display="none"; next();
+}
+function next(){
+ if(right>=3 && wrong>=3){finish();return}
+ if(round>=rounds.length){finish();return}
+ locked=false;
+ const r=rounds[round]; qEl.textContent=r.q; blocks.innerHTML="";
+ let choices=[{t:r.a[0],ok:true},{t:r.a[1],ok:false}];
+ // Mix order
+ if(Math.random()>.5) choices.reverse();
+ choices.forEach(x=>{
+   const b=document.createElement("button");b.className="block";b.textContent=x.t;
+   b.onclick=()=>pick(b,x.ok);blocks.appendChild(b);
+ });
+ update();
+}
+function pick(btn,ok){
+ if(locked)return; locked=true;
+ if(ok){right++;btn.classList.add("correct");document.getElementById("msg").textContent="✅ सही! अच्छा mindset."}
+ else{wrong++;btn.classList.add("wrong");document.getElementById("msg").textContent="❌ गलत! दूसरे block में बेहतर जवाब था."}
+ round++;update();
+ setTimeout(next,650);
+}
+function update(){
+ document.getElementById("right").textContent=right;
+ document.getElementById("wrong").textContent=wrong;
+ document.getElementById("fill").style.width=((right+wrong)/6*100)+"%";
+}
+function finish(){
+ blocks.innerHTML="";
+ qEl.textContent=(right>=3&&wrong>=3)?"🎉 Challenge Complete!":"⏱️ Round खत्म!";
+ document.getElementById("msg").textContent=`तुमने ${right} सही और ${wrong} गलत blocks पहचाने।`;
+ document.getElementById("restart").style.display="inline-block";
+ update();
+}
+start();
+</script>
+</body>
+</html>
